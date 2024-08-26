@@ -16,6 +16,17 @@
 </ul>
 
 <h2>Installation</h2>
+    Add in composer.json
+    "repositories": [
+            {
+                "type": "vcs",
+                "url": "https://github.com/AwaisJ670/laravelGenerateCrud.git"
+            }
+        ]
+    add in require{
+                "hiqusol/generate-crud": "dev-master"
+    }
+
     <li><code>composer require hiqusol/generate-crud</code></li>
 
     <li><strong>Run the Command:</strong></li>
