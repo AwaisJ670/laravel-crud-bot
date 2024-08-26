@@ -17,16 +17,16 @@
 
 <h2>Installation</h2>
     <li><code>composer require hiqusol/generate-crud</code></li>
+
     <li><strong>Run the Command:</strong></li>
-    <p>You can run the command using Artisan:</p>
+    <p>You can run the command using Artisan for generating crud:</p>
     <pre><code>php artisan generate:crud</code></pre>
+    <p>You can run the command using Artisan for deleting crud:</p>
+    <pre><code>php artisan delete:crud</code></pre>
 </ol>
 
-<h2>Usage</h2>
+<h2>Usage of Generating Crud</h2>
 <ol>
-    <li><strong>Run the Command:</strong></li>
-    <pre><code>php artisan generate:crud</code></pre>
-
     <li><strong>Follow the Prompts:</strong></li>
     <ul>
         <li><strong>Enter the model name.</strong></li>
@@ -56,38 +56,14 @@
         <li><strong>Controller File:</strong> Located in <code>app/Http/Controllers</code>.</li>
     </ul>
 </ol>
+<h2>Usage Of deleting Crud</h2>
+<ol>
+<li><strong>Follow the Prompts:</strong></li>
+<ul>
+<li>It ask for type model name if model exist then move forward else terminate the process</li>
+<li>It ask for confiramtion of deletion of the model,migration file, and from migrtation tables and drop the table,controller,views and routes</li>
+</ul>
+</ol>
 
-<h2>Example</h2>
-<p>Let's say you want to create a <code>Product</code> model with the following fields:</p>
-<ul>
-    <li><code>name</code>: <code>string</code>, nullable</li>
-    <li><code>price</code>: <code>decimal</code>, precision <code>8</code>, scale <code>2</code></li>
-    <li><code>is_active</code>: <code>boolean</code>, default <code>1</code></li>
-</ul>
-<p>You would run the command and provide the following inputs:</p>
-<pre><code>php artisan generate:crud</code></pre>
-
-<ul>
-    <li>Model Name: <code>Product</code></li>
-    <li>Table Name: <code>products</code></li>
-    <li>Field Name: <code>name</code></li>
-    <li>Field Type: <code>string</code></li>
-    <li>Nullable: <code>Yes</code></li>
-    <li>Field Name: <code>price</code></li>
-    <li>Field Type: <code>decimal</code></li>
-    <li>Precision: <code>8</code></li>
-    <li>Scale: <code>2</code></li>
-    <li>Nullable: <code>No</code></li>
-    <li>Field Name: <code>is_active</code></li>
-    <li>Field Type: <code>boolean</code></li>
-    <li>Default Value: <code>1</code></li>
-    <li>Nullable: <code>No</code></li>
-</ul>
-<p>This will generate the following:</p>
-<ul>
-    <li>Migration file with the specified fields.</li>
-    <li><code>Product</code> model with <code>$table</code> and <code>$fillable</code> properties.</li>
-    <li><code>ProductController</code> with basic CRUD methods.</li>
-</ul>
 
 

@@ -11,6 +11,7 @@ class ServiceProvider extends BaseServiceProvider
         // Register bindings and commands
         $this->commands([
             commands\ScaffoldCommand::class,
+            commands\DeleteCrudCommand::class,
         ]);
     }
 
