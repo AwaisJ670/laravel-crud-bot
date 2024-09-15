@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers\{{DIRECTORY}};
+
+use App\Http\Requests\{{DIRECTORY}}\{{FileRequest}};
+use Illuminate\Support\Facades\Schema;
+use App\Models\{{DIRECTORY}}\{{MODEL_NAME}};
+use App\Http\Controllers\Controller;
+
+class {{MODEL_NAME}}Controller extends Controller
+{
+    public function index()
+    {
+        return view('{{DIRECTORY}}.{{TABLE_NAME}}.index');
+    }
+
+    public function create(){
+    }
+
+    public function store({{FileRequest}} $request)
+    {
+        try{
+            ${{TABLE_NAME}} = {{MODEL_NAME}}::create($request->validated());
+            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Saved Successfully',${{TABLE_NAME}} => ${{TABLE_NAME}}]);
+        }
+        catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
+        }
+    }
+
+    public function show($id){
+         try{
+            ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
+            return response()->json(${{TABLE_NAME}});
+        }
+        catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
+        }
+    }
+
+    public function edit($id){
+         try{
+            ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
+            return response()->json(${{TABLE_NAME}});
+        }
+        catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
+        }
+
+    }
+
+    public function update({{FileRequest}} $request, $id){
+        try{
+            ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
+            ${{TABLE_NAME}}->update($request->validated());
+
+            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Updated Successfully',${{TABLE_NAME}} => ${{TABLE_NAME}}]);
+        }
+        catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
+        }
+    }
+
+    public function destroy($id){
+        try{
+            ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
+            ${{TABLE_NAME}}->delete();
+            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} deleted Successfully']);
+        }
+        catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
+        }
+    }
+
+}

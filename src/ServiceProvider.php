@@ -8,6 +8,9 @@ class ServiceProvider extends BaseServiceProvider
 {
     public function register()
     {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/crud_generator.php', 'crud_generator'
+        );
         // Register bindings and commands
         $this->commands([
             commands\ScaffoldCommand::class,
@@ -17,8 +20,8 @@ class ServiceProvider extends BaseServiceProvider
 
     public function boot()
     {
-        // $this->publishes([
-        //     __DIR__.'/config/generate-crud.php' => config_path('generate-crud.php'),
-        // ], 'config');
+        $this->publishes([
+            __DIR__.'/../config/crud_generator.php' => config_path('crud_generator.php'),
+        ],'crud-generator-config');
     }
 }
