@@ -416,22 +416,22 @@ class ScaffoldCommand extends Command
             $this->info("Resource controller created successfully at {$outputPath}");
 
             // Ask where to add routes
-            $routesFile = $this->choice(
-                'Where do you want to add routes?',
-                ['api.php', 'web.php'],
-                1
-            );
-
-            if ($routesFile === 'api.php') {
-                $this->info('Generating API routes...');
-                $this->generateApiRoutes($modelName);
-            } elseif ($routesFile === 'web.php') {
-                $this->info('Generating web routes...');
-                $this->generateWebRoutes($modelName);
-            }
-
-            Artisan::call('optimize:clear');
         }
+        $routesFile = $this->choice(
+            'Where do you want to add routes?',
+            ['api.php', 'web.php'],
+            1
+        );
+
+        if ($routesFile === 'api.php') {
+            $this->info('Generating API routes...');
+            $this->generateApiRoutes($modelName);
+        } elseif ($routesFile === 'web.php') {
+            $this->info('Generating web routes...');
+            $this->generateWebRoutes($modelName);
+        }
+
+        Artisan::call('optimize:clear');
     }
 
     protected function askGenerateController()
@@ -460,6 +460,9 @@ class ScaffoldCommand extends Command
     protected function generateApiRoutes($modelName)
     {
         $routesPath = base_path('routes/api.php');
+        if (File::exists($routesPath)) {
+            Artisan::call('install:api');
+        }
         $controllerName = $modelName . 'Controller';
         $routeLine = "Route::apiResource('" . strtolower($modelName) . "', " . $modelName . "Controller::class);";
 
