@@ -240,6 +240,7 @@ class ScaffoldCommand extends Command
             $modelContent
         );
 
+        file_put_contents($modelPath, $modelContent);
         // Add relationships if needed
         // Ask the user whether to add relationships with a choice
         $addRelationship = $this->choice('Do you want to add relationships to this model?', ['Yes', 'No'], 1);
