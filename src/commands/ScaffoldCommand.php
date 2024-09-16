@@ -38,7 +38,7 @@ class ScaffoldCommand extends Command
         $this->directory = $this->option('dir') ?: Config::get('crud_generator.directory');
         $modelInput = $this->ask('Enter the model name');
         // Format the model name to StudlyCase
-        $modelName = Str::studly(Str::singular(Str::lower($modelInput)));
+        $modelName = Str::studly($modelInput);
         // Generate the table name by converting the model name to snake case and pluralizing it
         $tableName = Str::plural(Str::snake($modelName));
 
