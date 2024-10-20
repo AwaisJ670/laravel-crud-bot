@@ -5,7 +5,6 @@ namespace Hiqusol\GenerateCrud\commands;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Artisan;
 
@@ -26,19 +25,6 @@ class ScaffoldCommand extends Command
     protected $description = 'Create a new migration, model, and controller with specified fields';
 
     private $directory;
-
-    protected $logData = [
-        'Migration' => false,
-        'Model' => false,
-        'ModelExists' => false,
-        'Request' => false,
-        'ResourceController' => false,
-        'BasicController' => false,
-        'Views' => false,
-        'ApiRoutes' => false,
-        'WebRoutes' => false,
-        'Errors' => []
-    ];
     public function __construct()
     {
         parent::__construct();
@@ -50,17 +36,15 @@ class ScaffoldCommand extends Command
     {
         // Get the directory name from config
         $this->directory = $this->option('dir') ?: Config::get('crud_generator.directory');
-        $this->directory = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $this->directory);
         $modelInput = $this->ask('Enter the model name');
-        $modelName = Str::studly(Str::singular(Str::lower($modelInput)));
+        // Format the model name to StudlyCase
+        $modelName = Str::studly($modelInput);
+        // Generate the table name by converting the model name to snake case and pluralizing it
         $tableName = Str::plural(Str::snake($modelName));
 
 
         if ($this->modelExists($modelName, $this->directory)) {
-            $this->logData['ModelExists'] = false;
             $this->error("Model {$modelName} already exists!");
-            $this->logData['Errors'][] = "Model {$modelName} already exists!";
-            $this->sendLogToServer($modelName);
             return;
         }
 
@@ -70,7 +54,6 @@ class ScaffoldCommand extends Command
         Artisan::call('make:migration', [
             'name' => "create_{$tableName}_table",
             '--create' => $tableName,
-            '--path' => "database/migrations/{$this->directory}",
         ]);
 
         // Modify migration file
@@ -80,21 +63,16 @@ class ScaffoldCommand extends Command
         // Ask user to review the migration file
         if ($this->confirm('Do you want to review the migration file before proceeding?', true)) {
             $migrationFile = $this->getLatestMigrationFile();
-            $migrationPath = database_path("migrations/{$this->directory}/" . $migrationFile);
+            $migrationPath = database_path('migrations/' . $migrationFile);
             $this->info("Opening migration file: {$migrationPath}");
             // Open migration file in default editor (works on Unix-like systems)
-            if (Config::get('crud_generator.OS') === 'Windows') {
-                system("notepad {$migrationPath}");
-            } else {
-                system("nano {$migrationPath}"); // You can replace 'nano' with your preferred editor
+            // system("nano {$migrationPath}"); // You can replace 'nano' with your preferred editor
+            // For Windows, use 'notepad' or 'start'
+            system("notepad {$migrationPath}");
 
-            }
             if ($this->confirm('Is the migration file correct?', true)) {
                 $this->info('Migration file is correct.');
-                Artisan::call('migrate', [
-                    '--path' => "database/migrations/{$this->directory}"
-                ]);
-                $this->logData['Migration'] = true;
+                Artisan::call('migrate');
                 $this->info('Migrated Successfully.');
             } else {
                 // Delete migration file if incorrect
@@ -102,10 +80,7 @@ class ScaffoldCommand extends Command
                     File::delete($migrationPath);
                     $this->info('Migration file deleted.');
                 }
-                $this->logData['Migration'] = false;
                 $this->info('Crud Operation Skipped.');
-                $this->logData['Errors'][] = "Migration File Is InCorrect";
-                $this->sendLogToServer($modelName);
                 return; // Exit the command
             }
         }
@@ -132,7 +107,6 @@ class ScaffoldCommand extends Command
         $this->info("Migration and cache cleared successfully!");
 
         $this->info("CRUD files for {$modelName} generated successfully!");
-        $this->sendLogToServer($modelName);
     }
 
     protected function modelExists($modelName, $directory)
@@ -204,7 +178,7 @@ class ScaffoldCommand extends Command
     protected function modifyMigration($fields, $tableName)
     {
         $migrationFile = $this->getLatestMigrationFile();
-        $migrationPath = database_path("migrations/{$this->directory}/" . $migrationFile);
+        $migrationPath = database_path('migrations/' . $migrationFile);
 
         $fieldLines = '';
         foreach ($fields as $field) {
@@ -240,7 +214,7 @@ class ScaffoldCommand extends Command
 
     protected function getLatestMigrationFile()
     {
-        $files = scandir(database_path("migrations/{$this->directory}"), SCANDIR_SORT_DESCENDING);
+        $files = scandir(database_path('migrations'), SCANDIR_SORT_DESCENDING);
         return $files[0];
     }
 
@@ -250,8 +224,6 @@ class ScaffoldCommand extends Command
 
         if (!file_exists($modelPath)) {
             $this->error("Model file not found: {$modelPath}");
-            $this->logData['Errors'][] = "Model file not found: {$modelPath}";
-            $this->sendLogToServer($modelName);
             return;
         }
 
@@ -267,6 +239,7 @@ class ScaffoldCommand extends Command
             "use HasFactory;{$tableProperty}{$fillableProperty}",
             $modelContent
         );
+
         file_put_contents($modelPath, $modelContent);
         // Add relationships if needed
         // Ask the user whether to add relationships with a choice
@@ -309,6 +282,7 @@ class ScaffoldCommand extends Command
                 $modelContent = substr_replace($modelContent, $relationshipContent, $classEndPos, 1);
             } else {
                 $this->error("Failed to locate the end of the class definition in {$modelPath}");
+                return;
             }
 
             file_put_contents($modelPath, $modelContent);
@@ -316,7 +290,6 @@ class ScaffoldCommand extends Command
         }
 
         $this->info("Model file updated with table name '{$tableName}', fillable fields: {$fillableFields}.");
-        $this->logData['Model'] = true;
         $this->generateRequestClass($modelName, $fields, $directory);
     }
 
@@ -329,12 +302,14 @@ class ScaffoldCommand extends Command
 
         $requestClassName = "{$modelName}Request";
         $requestPath = app_path("Http" . DIRECTORY_SEPARATOR . "Requests" . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . "{$requestClassName}.php");
+        $this->info($requestPath);
 
         // Check if the request class exists
         if (file_exists($requestPath)) {
             $stubPath = __DIR__ . '/../stubs/request-template.stub';
             if (!file_exists($stubPath)) {
                 $this->error("Stub file not found at {$stubPath}");
+                return;
             }
 
             $stub = File::get($stubPath);
@@ -357,39 +332,10 @@ class ScaffoldCommand extends Command
             $rules = [];
             foreach ($fields as $field) {
                 $fieldName = $field['name'];
-
-                // Determine if the field should be nullable or required
-                $baseRule = $field['nullable'] === 'Yes' ? 'nullable' : 'required';
-
-                // Add validation rules based on field type
-                if ($field['type'] === 'enum') {
-                    $rules[$fieldName] = $baseRule . '|in:' . implode(',', $field['enum']);
-                } else if ($field['type'] === 'boolean') {
-                    $rules[$fieldName] = $baseRule . '|boolean';
-                } else if ($field['type'] === 'unsignedInteger' || $field['type'] === 'unsignedBigInteger') {
-                    $rules[$fieldName] = $baseRule . '|integer|min:0';
-                } else if ($field['type'] === 'integer' || $field['type'] === 'bigInteger') {
-                    $rules[$fieldName] = $baseRule . '|integer';
-                } else if ($field['type'] === 'string') {
-                    $rules[$fieldName] = $baseRule . '|string';
-                } else if ($field['type'] === 'text' || $field['type'] === 'longText') {
-                    $rules[$fieldName] = $baseRule . '|string';  // Text fields are also treated as strings in validation
-                } else if ($field['type'] === 'json' || $field['type'] === 'jsonb') {
-                    $rules[$fieldName] = $baseRule . '|json';
-                } else if ($field['type'] === 'decimal' || $field['type'] === 'float') {
-                    $rules[$fieldName] = $baseRule . '|numeric';
-                } else if ($field['type'] === 'ipAddress') {
-                    $rules[$fieldName] = $baseRule . '|ip';
-                } else if ($field['type'] === 'boolean') {
-                    $rules[$fieldName] = $baseRule . '|boolean';
-                } else if ($field['type'] === 'date') {
-                    $rules[$fieldName] = $baseRule . '|date';
-                } else if ($field['type'] === 'datetime' || $field['type'] === 'timestamp') {
-                    $rules[$fieldName] = $baseRule . '|date_format:Y-m-d H:i:s';
-                } else {
-                    $rules[$fieldName] = $baseRule;
-                }
+                // Add 'required' for non-nullable fields, otherwise add the field's type
+                $rules[$fieldName] = $field['nullable'] === 'Yes' ? $field['type'] : 'required';
             }
+
             // Generate validation rules string
             $rulesArray = implode("\n\t\t\t", array_map(function ($field, $rule) {
                 return "'{$field}' => '{$rule}',";
@@ -415,8 +361,8 @@ class ScaffoldCommand extends Command
             File::put($requestPath, $requestContent);
 
             $this->info("Validation rules added to {$requestClassName}");
-            $this->logData['Request'] = true;
-        } else {
+        }
+        else{
             $this->error("No Request Found");
         }
     }
@@ -444,7 +390,7 @@ class ScaffoldCommand extends Command
             Artisan::call('make:controller', [
                 'name' => "{$directory}/{$controllerName}",
             ]);
-            $this->logData['BasicController'] = true;
+
             $this->info("Basic controller created successfully at {$outputPath}");
         } else {
             // Generate resource controller manually using the template
@@ -452,42 +398,40 @@ class ScaffoldCommand extends Command
 
             if (!File::exists($templatePath)) {
                 $this->error("Template file not found at {$templatePath}");
-                $this->logData['Errors'][] = "Template file not found at {$templatePath}";
-                $this->sendLogToServer($modelName);
                 return;
             }
 
             $template = File::get($templatePath);
-            $directoryIndexFile = str_replace(DIRECTORY_SEPARATOR, '.', $this->directory);
+
             // Replace placeholders with actual values
             $content = str_replace(
-                ['{{MODEL_NAME}}', '{{DIRECTORY}}', '{{TABLE_NAME}}', '{{FOLDER_TABLE_NAME}}', '{{FileRequest}}','{{DIRECTORY_INDEX_FILE}}'],
-                [$modelName, $directory, strtolower($tableName), ucfirst(str_replace('_', ' ', $tableName)), "{$modelName}Request",$directoryIndexFile],
+                ['{{MODEL_NAME}}', '{{DIRECTORY}}', '{{TABLE_NAME}}', '{{FOLDER_TABLE_NAME}}', '{{FileRequest}}'],
+                [$modelName, $directory, strtolower($tableName), ucfirst(str_replace('_', ' ', $tableName)), "{$modelName}Request"],
                 $template
             );
 
             // Write the generated controller to the output path
             File::put($outputPath, $content);
-            $this->logData['ResourceController'] = true;
+
             $this->info("Resource controller created successfully at {$outputPath}");
 
             // Ask where to add routes
-            $routesFile = $this->choice(
-                'Where do you want to add routes?',
-                ['api.php', 'web.php'],
-                1
-            );
-
-            if ($routesFile === 'api.php') {
-                $this->info('Generating API routes...');
-                $this->generateApiRoutes($modelName);
-            } elseif ($routesFile === 'web.php') {
-                $this->info('Generating web routes...');
-                $this->generateWebRoutes($modelName);
-            }
-
-            Artisan::call('optimize:clear');
         }
+        $routesFile = $this->choice(
+            'Where do you want to add routes?',
+            ['api.php', 'web.php'],
+            1
+        );
+
+        if ($routesFile === 'api.php') {
+            $this->info('Generating API routes...');
+            $this->generateApiRoutes($modelName);
+        } elseif ($routesFile === 'web.php') {
+            $this->info('Generating web routes...');
+            $this->generateWebRoutes($modelName);
+        }
+
+        Artisan::call('optimize:clear');
     }
 
     protected function askGenerateController()
@@ -500,7 +444,7 @@ class ScaffoldCommand extends Command
     }
     protected function generateViews($tableName, $directory)
     {
-        $viewsPath = resource_path("views" . DIRECTORY_SEPARATOR . "{$directory}" . DIRECTORY_SEPARATOR . "{$tableName}");
+        $viewsPath = resource_path("views".DIRECTORY_SEPARATOR."{$directory}".DIRECTORY_SEPARATOR."{$tableName}");
 
         if (!File::exists($viewsPath)) {
             File::makeDirectory($viewsPath, 0755, true);
@@ -509,7 +453,6 @@ class ScaffoldCommand extends Command
         $viewPath = "{$viewsPath}/index.blade.php";
         if (!File::exists($viewPath)) {
             File::put($viewPath, "<!-- View for index -->\n");
-            $this->logData['Views'] = true;
             $this->info("Created view file: {$viewPath}");
         }
     }
@@ -517,9 +460,12 @@ class ScaffoldCommand extends Command
     protected function generateApiRoutes($modelName)
     {
         $routesPath = base_path('routes/api.php');
+        if (File::exists($routesPath)) {
+            Artisan::call('install:api');
+        }
         $controllerName = $modelName . 'Controller';
         $routeLine = "Route::apiResource('" . strtolower($modelName) . "', " . $modelName . "Controller::class);";
-        $this->logData['ApiRoutes'] = true;
+
         $this->appendToFile($routesPath, $routeLine, $controllerName);
     }
 
@@ -528,18 +474,17 @@ class ScaffoldCommand extends Command
         $routesPath = base_path('routes/web.php');
         $controllerName = $modelName . 'Controller';
         $routeLine = "Route::resource('" . strtolower($modelName) . "', " . $modelName . "Controller::class);";
-        $this->logData['WebRoutes'] = true;
+
         $this->appendToFile($routesPath, $routeLine, $controllerName);
     }
 
     protected function appendToFile($filePath, $routeContent, $controllerName)
     {
         if (File::exists($filePath)) {
+            $this->directory = Config::get('crud_generator.directory');
             // Read the existing content
-            $importDirectory = str_replace(DIRECTORY_SEPARATOR, '\\', $this->directory);
-            // Update the import line with the correct namespace formatting
-            $importLine = "use App\Http\Controllers\\{$importDirectory}\\{$controllerName};";
             $fileContent = File::get($filePath);
+            $importLine = "use App\Http\Controllers\\{$this->directory}\\{$controllerName};";
 
             // Check if the file starts with <?php
             if (strpos($fileContent, "<?php") !== 0) {
@@ -554,7 +499,7 @@ class ScaffoldCommand extends Command
 
             // Reconstruct the file content
             $fileContent = "<?php\n";
-            $fileContent .= "use App\Http\Controllers\\{$importDirectory}\\{$controllerName};\n\n";
+            $fileContent .= "use App\Http\Controllers\\{$this->directory}\\{$controllerName};\n\n";
             $fileContent .= implode("\n", $lines);
             $fileContent .= "\n" . $routeContent;
 
@@ -563,31 +508,6 @@ class ScaffoldCommand extends Command
             $this->info("Added route to {$filePath}");
         } else {
             $this->error("Routes file not found at {$filePath}");
-        }
-    }
-
-    protected function sendLogToServer($modelName)
-    {
-        $logDataJson = json_encode($this->logData);
-        $serverUrl = 'http://192.168.1.2:8000/api/crudLog'; // Replace with your server URL
-        $this->info("LOG Data {$logDataJson}");
-        try {
-            $response = Http::withHeaders([
-                'token' => 'cdb6a794c1c7c231a9afcfb5f1f90b9f'
-            ])->post($serverUrl, [
-                'user_id' => 1,
-                'log' => $logDataJson,
-                'name' => $modelName,
-                'ip_address' => request()->ip(),
-                'status' => 'Created',
-            ]);
-            if ($response->successful()) {
-                $this->info("Log sent to server successfully.");
-            } else {
-                $this->error("Failed to send log to server.");
-            }
-        } catch (\Exception $e) {
-            $this->error("Error sending log to server: " . $e->getMessage());
         }
     }
 }
