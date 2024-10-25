@@ -11,7 +11,7 @@ class {{MODEL_NAME}}Controller extends Controller
 {
     public function index()
     {
-        return view('{{DIRECTORY}}.{{TABLE_NAME}}.index');
+        return view('{{DIRECTORY_INDEX_FILE}}.{{TABLE_NAME}}.index');
     }
 
     public function create(){
@@ -21,7 +21,7 @@ class {{MODEL_NAME}}Controller extends Controller
     {
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::create($request->validated());
-            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Saved Successfully',${{TABLE_NAME}} => ${{TABLE_NAME}}]);
+            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Saved Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
         }
         catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 500);
@@ -54,7 +54,7 @@ class {{MODEL_NAME}}Controller extends Controller
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
             ${{TABLE_NAME}}->update($request->validated());
 
-            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Updated Successfully',${{TABLE_NAME}} => ${{TABLE_NAME}}]);
+            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Updated Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
         }
         catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 500);
