@@ -1,6 +1,6 @@
 <?php
 
-namespace Hiqusol\GenerateCrud\commands;
+namespace CodeBider\GenerateCrud\commands;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;

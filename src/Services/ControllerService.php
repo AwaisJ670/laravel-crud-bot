@@ -1,11 +1,10 @@
 <?php
 
-namespace Hiqusol\GenerateCrud\Services;
+namespace CodeBider\GenerateCrud\Services;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
-use Hiqusol\GenerateCrud\Services\RequestService;
 
 class ControllerService
 {

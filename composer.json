@@ -1,5 +1,5 @@
 {
-    "name": "hiqusol/generate-crud",
+    "name": "codebider/generate-crud",
     "description": "An artisan command to automate the migration,model,resource controller, views and routes",
     "type": "library",
     "require": {
@@ -12,7 +12,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Hiqusol\\GenerateCrud\\": "src/"
+            "CodeBider\\GenerateCrud\\": "src/"
         }
     },
     "authors": [
@@ -24,7 +24,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Hiqusol\\GenerateCrud\\ServiceProvider"
+                "CodeBider\\GenerateCrud\\ServiceProvider"
             ]
         }
     }

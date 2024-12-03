@@ -1,16 +1,16 @@
 <?php
 
-namespace Hiqusol\GenerateCrud\commands;
+namespace CodeBider\GenerateCrud\commands;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Config;
-use Hiqusol\GenerateCrud\Services\ModelService;
-use Hiqusol\GenerateCrud\Services\BladeFileService;
-use Hiqusol\GenerateCrud\Services\MigrationService;
-use Hiqusol\GenerateCrud\Services\ControllerService;
-use Hiqusol\GenerateCrud\Services\LogService;
+use CodeBider\GenerateCrud\Services\ModelService;
+use CodeBider\GenerateCrud\Services\BladeFileService;
+use CodeBider\GenerateCrud\Services\MigrationService;
+use CodeBider\GenerateCrud\Services\ControllerService;
+use CodeBider\GenerateCrud\Services\LogService;
 
 class ScaffoldCommand extends Command
 {

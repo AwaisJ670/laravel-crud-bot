@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\{{DIRECTORY}};
 
-use App\Http\Requests\{{DIRECTORY}}\{{FileRequest}};
 use Illuminate\Support\Facades\Schema;
 use App\Models\{{DIRECTORY}}\{{MODEL_NAME}};
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Request;
 
 class {{MODEL_NAME}}Controller extends Controller
 {
@@ -17,10 +17,10 @@ class {{MODEL_NAME}}Controller extends Controller
     public function create(){
     }
 
-    public function store({{FileRequest}} $request)
+    public function store(Request $request)
     {
         try{
-            ${{TABLE_NAME}} = {{MODEL_NAME}}::create($request->validated());
+            ${{TABLE_NAME}} = {{MODEL_NAME}}::create($request->all());
             return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Saved Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
         }
         catch (\Exception $exception) {
@@ -49,10 +49,10 @@ class {{MODEL_NAME}}Controller extends Controller
 
     }
 
-    public function update({{FileRequest}} $request, $id){
+    public function update(Request $request, $id){
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
-            ${{TABLE_NAME}}->update($request->validated());
+            ${{TABLE_NAME}}->update($request->all());
 
             return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Updated Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
         }

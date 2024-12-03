@@ -1,6 +1,6 @@
 <?php
 
-namespace Hiqusol\GenerateCrud\Services;
+namespace CodeBider\GenerateCrud\Services;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Artisan;

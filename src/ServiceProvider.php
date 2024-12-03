@@ -1,6 +1,6 @@
 <?php
 
-namespace Hiqusol\GenerateCrud;
+namespace CodeBider\GenerateCrud;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 

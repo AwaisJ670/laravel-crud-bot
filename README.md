@@ -24,10 +24,10 @@
             }
         ]
     add in require{
-                "hiqusol/generate-crud": "dev-master"
+                "codebider/generate-crud": "dev-master"
     }
 
-    <li><code>composer require hiqusol/generate-crud</code></li>
+    <li><code>composer require codebider/generate-crud</code></li>
 
     <li><strong>Run the Command:</strong></li>
     <p>You can run the command using Artisan for generating crud:</p>
