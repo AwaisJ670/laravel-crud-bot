@@ -52,8 +52,8 @@ class ControllerService
             $this->logService->updateLog('BasicController',true);
             $this->command->info("Basic controller created successfully at {$outputPath}");
         } else {
-            $requestService = new RequestService($this->command,$this->directory,$this->modelName,$this->fields,$this->logService);
-            $requestService->generateRequestClass();
+            // $requestService = new RequestService($this->command,$this->directory,$this->modelName,$this->fields,$this->logService);
+            // $requestService->generateRequestClass();
             // Generate resource controller manually using the template
             $templatePath = __DIR__ . '/../stubs/resource-controller-template.stub';
 
@@ -68,8 +68,8 @@ class ControllerService
             $directoryIndexFile = str_replace(DIRECTORY_SEPARATOR, '.', $this->directory);
             // Replace placeholders with actual values
             $content = str_replace(
-                ['{{MODEL_NAME}}', '{{DIRECTORY}}', '{{TABLE_NAME}}', '{{FOLDER_TABLE_NAME}}', '{{FileRequest}}','{{DIRECTORY_INDEX_FILE}}'],
-                [$this->modelName, $this->directory, strtolower($this->tableName), ucfirst(str_replace('_', ' ', $this->tableName)), "{$this->modelName}Request",$directoryIndexFile],
+                ['{{MODEL_NAME}}', '{{DIRECTORY}}', '{{TABLE_NAME}}', '{{FOLDER_TABLE_NAME}}', '{{DIRECTORY_INDEX_FILE}}'],
+                [$this->modelName, $this->directory, strtolower($this->tableName), ucfirst(str_replace('_', ' ', $this->tableName)),$directoryIndexFile],
                 $template
             );
 
