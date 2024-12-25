@@ -115,7 +115,8 @@ class ModelService
             return;
         }
 
-        $fillableFields = implode("', '", array_column($this->fields, 'name'));
+        $fillableFields = implode("', '", $this->fields);
+        // $fillableFields = implode("', '", array_column($this->fields, 'name'));
         $modelContent = file_get_contents($modelPath);
 
         $tableProperty = "\n    protected \$table = '{$this->tableName}';";

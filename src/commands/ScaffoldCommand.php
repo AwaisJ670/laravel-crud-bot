@@ -40,53 +40,59 @@ class ScaffoldCommand extends Command
      */
     public function handle()
     {
-        // Get the directory name from config
-        $this->directory = $this->option('dir') ?: Config::get('crud_generator.directory');
-        $this->directory = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $this->directory);
-        $modelInput = $this->ask('Enter the model name');
-        $modelName = Str::studly(Str::singular(Str::lower($modelInput)));
-        $tableName = Str::plural(Str::snake($modelName));
+        try {
+            // Get the directory name from config
+            $this->directory = $this->option('dir') ?: Config::get('crud_generator.directory');
+            $this->directory = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $this->directory);
+            $modelInput = $this->ask('Enter the model name');
+            $modelName = Str::studly(Str::singular(Str::lower($modelInput)));
+            $tableName = Str::plural(Str::snake($modelName));
 
 
-        if ($this->modelExists($modelName, $this->directory)) {
-            $this->logService->updateLog('ModelExists', true);
-            $this->error("Model {$modelName} already exists!");
-            $this->logService->updateLog('Errors', "Model {$modelName} already exists!");
-            $this->logService->sendLogToServer($modelName);
-            return;
-        }
-
-        //Migration Service
-        $migrationService = new MigrationService($this, $this->directory, $tableName, $this->logService, $modelName);
-
-        $fields = $migrationService->askFields();
-        $migrationService->createMigration();
-        $migrationService->modifyMigration($fields);
-
-        //end of Migration Service
-
-        //Model Service
-        $modelService = new ModelService($this, $this->directory, $modelName, $fields, $tableName, $this->logService);
-        $modelService->createModel();
-
-
-        // Generate Controller
-        $controllerService = new ControllerService($this, $this->directory, $modelName, $tableName, $fields, $this->logService);
-        $bladeFileService = new BladeFileService($this, $this->directory, $tableName, $this->logService);
-
-        if ($controllerService->askGenerateController()) {
-            $controllerService->generateController();
-
-            // Ask if views should be created
-            if ($bladeFileService->askGenerateViews()) {
-                $bladeFileService->generateViews();
+            if ($this->modelExists($modelName, $this->directory)) {
+                $this->logService->updateLog('ModelExists', true);
+                $this->error("Model {$modelName} already exists!");
+                $this->logService->updateLog('Errors', "Model {$modelName} already exists!");
+                $this->logService->sendLogToServer($modelName);
+                return;
             }
+
+            //Migration Service
+            $migrationService = new MigrationService($this, $this->directory, $tableName, $this->logService, $modelName);
+
+            $fields = $migrationService->askFields();
+            $migrationService->createMigration();
+            $fields = $migrationService->modifyMigration($fields);
+            // $this->info(json_encode($fields));
+            //end of Migration Service
+
+            //Model Service
+            $modelService = new ModelService($this, $this->directory, $modelName, $fields, $tableName, $this->logService);
+            $modelService->createModel();
+
+
+            // Generate Controller
+            $controllerService = new ControllerService($this, $this->directory, $modelName, $tableName, $fields, $this->logService);
+            $bladeFileService = new BladeFileService($this, $this->directory, $tableName, $this->logService);
+
+            if ($controllerService->askGenerateController()) {
+                $controllerService->generateController();
+
+                // Ask if views should be created
+                if ($bladeFileService->askGenerateViews()) {
+                    $bladeFileService->generateViews();
+                }
+            }
+
+            $this->info("Migration and cache cleared successfully!");
+
+            $this->info("CRUD files for {$modelName} generated successfully!");
+            $this->logService->sendLogToServer($modelName);
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+            $this->logService->updateLog('Errors', "{$e->getMessage()}");
+            $this->logService->sendLogToServer($modelName);
         }
-
-        $this->info("Migration and cache cleared successfully!");
-
-        $this->info("CRUD files for {$modelName} generated successfully!");
-        $this->logService->sendLogToServer($modelName);
     }
 
     protected function modelExists($modelName, $directory)

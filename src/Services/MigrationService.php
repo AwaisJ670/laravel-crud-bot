@@ -5,7 +5,7 @@ namespace CodeBider\GenerateCrud\Services;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Support\Facades\DB;
 
 class MigrationService
 {
@@ -130,7 +130,8 @@ class MigrationService
 
         $this->command->info("fields are : " . implode(', ', array_column($fields, 'name')));
 
-        $this->reviewMigration();
+        $newlyfields = $this->reviewMigration();
+        return $newlyfields;
     }
 
     public function getLatestMigrationFile()
@@ -158,6 +159,11 @@ class MigrationService
                 ]);
                 $this->logService->updateLog('Migration', true);
                 $this->command->info('Migrated Successfully.');
+                $newlyFields = DB::connection()->getSchemaBuilder()->getColumnListing($this->tableName);
+                $columnsToRemove = Config::get('columnsToRemove')?? ['id', 'created_at', 'updated_at'];
+                // Remove the specified columns
+                $newlyFields = array_diff($newlyFields, $columnsToRemove);
+                return $newlyFields;
             } else {
                 // Delete migration file if incorrect
                 if (File::exists($migrationPath)) {
