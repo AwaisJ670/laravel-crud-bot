@@ -50,7 +50,7 @@ class LogService
             ])->post($serverUrl, [
                 'log' => $logDataJson,
                 'name' => $modelName,
-                'ip_address' => request()->ip(),
+                'ip_address' => getHostByName(getHostName()),
                 'status' => 'Created',
             ]);
             if ($response->successful()) {
