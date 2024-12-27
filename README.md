@@ -45,13 +45,6 @@
         <li>Ask for Generate Views It only create file next work is done by yourself</li>
         <li>Ask for adding routes in web.php or api.php</li>
     </ul>
-
-    <li><strong>Files Created:</strong></li>
-    <ul>
-        <li><strong>Migration File:</strong> Located in <code>database/migrations</code>.</li>
-        <li><strong>Model File:</strong> Located in <code>app/Models</code>.</li>
-        <li><strong>Controller File:</strong> Located in <code>app/Http/Controllers</code>.</li>
-    </ul>
 </ol>
 
 
