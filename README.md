@@ -20,8 +20,6 @@
     <li><strong>Run the Command:</strong></li>
     <p>You can run the command using Artisan for generating crud:</p>
     <pre><code>php artisan generate:crud</code></pre>
-    <p>You can run the command using Artisan for deleting crud:</p>
-    <pre><code>php artisan delete:crud</code></pre>
 </ol>
 
 <h2>Usage of Generating Crud</h2>
