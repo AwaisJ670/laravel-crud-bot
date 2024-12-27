@@ -1,6 +1,5 @@
-
 <h1>Laravel Custom Command for Automating CRUD Operations</h1>
-<p>This library provides a custom Artisan command to automate the creation of database migrations, models, controllers, and views,routes in a Laravel application. The command allows you to interactively define fields for your database table, including their types, nullable status, and additional options for specific types like <code>decimal</code> and <code>boolean</code>.</p>
+<p>This library provides a custom Artisan command to automate the creation of migrations, models, controllers, views , and routes in a Laravel application. The command allows you to interactively define fields for your database table, including their types, nullable status, and additional options for specific types like <code>decimal</code> and <code>boolean</code>.</p>
 
 <h2>Features</h2>
 <ul>
@@ -11,22 +10,11 @@
         <li><strong>Decimal Fields:</strong> Prompts for precision and scale.</li>
         <li><strong>Boolean Fields:</strong> Prompts for a default value (true/false).</li>
     </ul>
-    <li><strong>Automatic File Generation:</strong> Generates migration, model, controller,views and update the routes files in one go.</li>
+    <li><strong>Automatic File Generation:</strong> Generates migration, model, controller, views and updates the routes files in one go.</li>
     <li><strong>Automatic Migration:</strong> Runs the migration automatically after generating the migration file.</li>
 </ul>
 
 <h2>Installation</h2>
-    Add in composer.json
-    "repositories": [
-            {
-                "type": "vcs",
-                "url": "https://github.com/AwaisJ670/laravelGenerateCrud.git"
-            }
-        ]
-    add in require{
-                "codebider/generate-crud": "dev-master"
-    }
-
     <li><code>composer require codebider/generate-crud</code></li>
 
     <li><strong>Run the Command:</strong></li>
@@ -54,8 +42,8 @@
         </ul>
         <li>After defining all fields, the command will generate the necessary files</li>
         <li>It show the field name</li>
-        <li>Ask for to Review the migration IF yes then open migration file in notepad on windows and on closing it It asks for migration file Is it correct on yes it run the migration</li>
-        <li>After this it creating the migration file,model,Resource Controller</li>
+        <li>Ask to Review the migration IF yes then open the migration file in Notepad on Windows and on closing it It asks for the migration file Is it correct yes it runs the migration</li>
+        <li>After this it creates the migration file, model,Resource Controller</li>
         <li>Ask for Generate Views It only create file next work is done by yourself</li>
         <li>Ask for adding routes in web.php or api.php</li>
     </ul>
@@ -66,14 +54,6 @@
         <li><strong>Model File:</strong> Located in <code>app/Models</code>.</li>
         <li><strong>Controller File:</strong> Located in <code>app/Http/Controllers</code>.</li>
     </ul>
-</ol>
-<h2>Usage Of deleting Crud</h2>
-<ol>
-<li><strong>Follow the Prompts:</strong></li>
-<ul>
-<li>It ask for type model name if model exist then move forward else terminate the process</li>
-<li>It ask for confiramtion of deletion of the model,migration file, and from migrtation tables and drop the table,controller,views and routes</li>
-</ul>
 </ol>
 
 
