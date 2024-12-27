@@ -1,51 +1,42 @@
-<h1>Laravel Custom Command for Automating CRUD Operations</h1>
-<p>This library provides a custom Artisan command to automate the creation of migrations, models, controllers, views , and routes in a Laravel application. The command allows you to interactively define fields for your database table, including their types, nullable status, and additional options for specific types like <code>decimal</code> and <code>boolean</code>.</p>
+![Laravel Crud Generator](https://banners.beyondco.de/Automated%20Crud%20Generation%20Tool.png?theme=dark&packageManager=composer+require&packageName=codebider%2Fgenerate-crud&pattern=zigZag&style=style_1&description=It+automate+the+process+of+repetitive+task+for+creating+crud.&md=1&showWatermark=0&fontSize=75px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
 
-<h2>Features</h2>
-<ul>
-    <li><strong>Interactive CLI:</strong> Prompt-based input for creating migration fields.</li>
-    <li><strong>Field Types:</strong> Supports various field types including <code>string</code>, <code>integer</code>, <code>decimal</code>, <code>boolean</code>, etc.</li>
-    <li><strong>Special Handling:</strong></li>
-    <ul>
-        <li><strong>Decimal Fields:</strong> Prompts for precision and scale.</li>
-        <li><strong>Boolean Fields:</strong> Prompts for a default value (true/false).</li>
-    </ul>
-    <li><strong>Automatic File Generation:</strong> Generates migration, model, controller, views and updates the routes files in one go.</li>
-    <li><strong>Automatic Migration:</strong> Runs the migration automatically after generating the migration file.</li>
-</ul>
 
-<h2>Installation</h2>
-    <li><code>composer require codebider/generate-crud</code></li>
+This Laravel CRUD Generator package provides and generates Controller, Model (with eloquent relations), Migration, Routes and Views for developing your applications with a single command.
+## Features
+All these tasks will done under the proper folder structuring which is by default set to Admin and easily changed at the time of creation through --dir
+- Will create **Migration** 
+- Will create **Model**
+- For Adding Eloquent relations in **Model** ask from developer
+- Will create **Controller** or **Resource Controller** ask from developer
+- Will create **views** 
 
-    <li><strong>Run the Command:</strong></li>
-    <p>You can run the command using Artisan for generating crud:</p>
-    <pre><code>php artisan generate:crud</code></pre>
-</ol>
+## Requirements
+    Laravel >= 8.x
+    PHP >= 7.4
 
-<h2>Usage of Generating Crud</h2>
-<ol>
-    <li><strong>Follow the Prompts:</strong></li>
-    <ul>
-        <li><strong>Enter the model name.</strong></li>
-        <li><strong>Define the fields interactively:</strong></li>
-        <ul>
-            <li><strong>Field Name:</strong> Enter the name of the field.</li>
-            <li><strong>Field Type:</strong> Select field Type (e.g., <code>string</code>, <code>integer</code>, <code>decimal</code>, <code>boolean</code>).</li>
-            <li><strong>Nullable:</strong> Specify if the field should be nullable (<code>Yes</code> or <code>No</code>).</li>
-            <li><strong>Additional Options:</strong></li>
-            <ul>
-                <li>If the field type is <code>decimal</code>, you will be prompted for <code>precision</code> and <code>scale</code>.</li>
-                <li>If the field type is <code>boolean</code>, you will be prompted for a default value (<code>1</code> for true, <code>0</code> for false).</li>
-            </ul>
-        </ul>
-        <li>After defining all fields, the command will generate the necessary files</li>
-        <li>It show the field name</li>
-        <li>Ask to Review the migration IF yes then open the migration file in Notepad on Windows and on closing it It asks for the migration file Is it correct yes it runs the migration</li>
-        <li>After this it creates the migration file, model,Resource Controller</li>
-        <li>Ask for Generate Views It only create file next work is done by yourself</li>
-        <li>Ask for adding routes in web.php or api.php</li>
-    </ul>
-</ol>
+## Installation
+1 - Install
+```
+composer require codebider/generate-crud
+```
+2- Publish the default package's config (optional)
+```
+php artisan vendor:publish --tag=crud-generator-config
+```
+
+## Usage
+```
+php artisan generate:crud --dir=
+
+php artisan generate:crud --dir=admin
+```
+
+
+## Author
+
+Awais Javaid // [Email Me](mailto:info.awaisjavaid@gmail.com)
+
+Hire Me [LinkedIn](https://www.linkedin.com/in/malikawaisjavaid/)
 
 
 
