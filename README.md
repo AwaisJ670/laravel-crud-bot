@@ -6,9 +6,10 @@ This Laravel CRUD Generator package provides and generates Controller, Model (wi
 All these tasks will done under the proper folder structuring which is by default set to Admin and easily changed at the time of creation through --dir
 - Will create **Migration** 
 - Will create **Model**
-- For Adding Eloquent relations in **Model** ask from developer
-- Will create **Controller** or **Resource Controller** ask from developer
-- Will create **views** 
+- For Adding Eloquent relations in **Model** by asking from developer
+- Will create **Controller** or **Resource Controller** by asking from developer
+- Will create **views**
+- Will create routes in **Api** or **Web** by asking from developer
 
 ## Requirements
     Laravel >= 8.x
