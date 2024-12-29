@@ -1,6 +1,7 @@
 {
     "name": "codebider/generate-crud",
     "description": "An artisan command to automate the migration,model,resource controller, views and routes",
+    "keywords": ["laravel", "crud", "crud generator", "laravel crud generator", "laravel package", "crud bot"],
     "type": "library",
     "require": {
         "php": ">=7.3",
