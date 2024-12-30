@@ -9,19 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class MigrationService
 {
-    protected $command,$directory,$tableName,$logService,$modelName;
+    protected $command, $directory, $tableName, $logService, $modelName;
 
-    public function __construct($command,$directory,$tableName,LogService $logService,$modelName)
+    public function __construct($command, $directory, $tableName, LogService $logService, $modelName)
     {
         $this->command = $command;
         $this->directory = $directory;
         $this->tableName = $tableName;
         $this->logService = $logService;
         $this->modelName = $modelName;
-
     }
 
-    public function createMigration(){
+    public function createMigration()
+    {
         $this->command->info('Creating Migration File');
         // Create migration
         Artisan::call('make:migration', [
@@ -140,19 +140,23 @@ class MigrationService
         return $files[0];
     }
 
-    protected function reviewMigration(){
-        if ($this->command->confirm('Do you want to review the migration file before proceeding?', true)) {
+    protected function reviewMigration()
+    {
+        $reviewMigration = $this->command->choice('Do you want to preview the migration file before proceeding?', ['Yes', 'No'], 0);
+        if ($reviewMigration === 'Yes') {
             $migrationFile = $this->getLatestMigrationFile();
             $migrationPath = database_path("migrations/{$this->directory}/" . $migrationFile);
             $this->command->info("Opening migration file: {$migrationPath}");
             // Open migration file in default editor (works on Unix-like systems)
-            if (Config::get('crud_generator.OS') === 'Windows') {
+            $OS = Config::get('crud_generator.OS') ?? 'Windows';
+            if ($OS === 'Windows') {
                 system("notepad {$migrationPath}");
             } else {
                 system("nano {$migrationPath}"); // You can replace 'nano' with your preferred editor
 
             }
-            if ($this->command->confirm('Is the migration file correct?', true)) {
+            $migrationFeedback = $this->command->choice('Is the migration file correct?', ['Yes', 'No'], 0);
+            if ($migrationFeedback === 'Yes') {
                 $this->command->info('Migration file is correct.');
                 Artisan::call('migrate', [
                     '--path' => "database/migrations/{$this->directory}"
@@ -160,7 +164,7 @@ class MigrationService
                 $this->logService->updateLog('Migration', true);
                 $this->command->info('Migrated Successfully.');
                 $newlyFields = DB::connection()->getSchemaBuilder()->getColumnListing($this->tableName);
-                $columnsToRemove = Config::get('columnsToRemove')?? ['id', 'created_at', 'updated_at'];
+                $columnsToRemove = Config::get('columnsToRemove') ?? ['id', 'created_at', 'updated_at'];
                 // Remove the specified columns
                 $newlyFields = array_diff($newlyFields, $columnsToRemove);
                 return $newlyFields;
@@ -175,7 +179,18 @@ class MigrationService
                 $this->logService->sendLogToServer($this->modelName);
                 return; // Exit the command
             }
+        } else {
+            Artisan::call('migrate', [
+                '--path' => "database/migrations/{$this->directory}"
+            ]);
+            $this->logService->updateLog('Migration', true);
+            $this->command->info('Migrated Successfully.');
+
+            $newlyFields = DB::connection()->getSchemaBuilder()->getColumnListing($this->tableName);
+            $columnsToRemove = Config::get('columnsToRemove') ?? ['id', 'created_at', 'updated_at'];
+            // Remove the specified columns
+            $newlyFields = array_diff($newlyFields, $columnsToRemove);
+            return $newlyFields;
         }
     }
-
 }
