@@ -5,20 +5,35 @@ namespace App\Http\Controllers\{{DIRECTORY}};
 use Illuminate\Support\Facades\Schema;
 use App\Models\{{DIRECTORY}}\{{MODEL_NAME}};
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class {{MODEL_NAME}}Controller extends Controller
 {
-    public function index()
-    {
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(){
         return view('{{DIRECTORY_INDEX_FILE}}.{{TABLE_NAME}}.index');
     }
 
+     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create(){
+        //
     }
 
-    public function store(Request $request)
-    {
+     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request){
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::create($request->all());
             return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Saved Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
@@ -27,6 +42,12 @@ class {{MODEL_NAME}}Controller extends Controller
             return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
+     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
 
     public function show($id){
          try{
@@ -38,6 +59,12 @@ class {{MODEL_NAME}}Controller extends Controller
         }
     }
 
+     /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function edit($id){
          try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
@@ -46,9 +73,15 @@ class {{MODEL_NAME}}Controller extends Controller
         catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 500);
         }
-
     }
 
+     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id){
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
@@ -61,6 +94,12 @@ class {{MODEL_NAME}}Controller extends Controller
         }
     }
 
+     /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id){
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);

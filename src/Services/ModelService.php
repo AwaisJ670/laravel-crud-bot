@@ -3,12 +3,13 @@
 namespace CodeBider\GenerateCrud\Services;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 
 class ModelService
 {
-    protected $command, $directory, $modelName, $fields, $tableName,$logService;
+    protected $command, $directory, $modelName, $fields, $tableName, $logService;
 
-    public function __construct($command, $directory, $modelName, $fields, $tableName,LogService $logService)
+    public function __construct($command, $directory, $modelName, $fields, $tableName, LogService $logService)
     {
         $this->command = $command;
         $this->directory = $directory;
@@ -28,108 +29,46 @@ class ModelService
         $this->modifyModel();
     }
 
-    // protected function modifyModel()
-    // {
-    //     $this->command->info('Modifying Model');
-    //     $modelPath = app_path("Models" . DIRECTORY_SEPARATOR . $this->directory . DIRECTORY_SEPARATOR . "{$this->modelName}.php");
-
-    //     if (!file_exists($modelPath)) {
-    //         $this->command->error("Model file not found: {$modelPath}");
-    //         // $this->logData['Errors'][] = "Model file not found: {$modelPath}";
-    //         // $this->sendLogToServer($modelName);
-    //         return;
-    //     }
-
-    //     $fillableFields = implode("', '", array_column($this->fields, 'name'));
-    //     $modelContent = file_get_contents($modelPath);
-
-    //     $modelTemplate = __DIR__ . '/../stubs/model-template.stub';
-    //     $template= File::get($modelTemplate);
-    //     $content = str_replace(
-    //         ['{{MODEL_NAME}}', '{{DIRECTORY}}', '{{TABLE_NAME}}', '{{FILLABLE}}'],
-    //         [$this->modelName, $this->directory, strtolower($this->tableName), "'{$fillableFields}'"],
-    //         $template
-    //     );
-
-    //     // Write the generated controller to the output path
-    //     File::put($modelPath, $content);
-
-    //     // Add relationships if needed
-    //     // Ask the user whether to add relationships with a choice
-    //     $addRelationship = $this->command->choice('Do you want to add relationships to this model?', ['Yes', 'No'], 1);
-
-    //     if ($addRelationship === 'Yes') {
-    //         $relationships = ['belongsTo', 'hasMany', 'hasOne', 'belongsToMany'];
-    //         $relationshipType = $this->command->choice('Select the type of relationship to add:', $relationships);
-
-    //         // Check if the related model exists
-    //         $relatedModelExists = false;
-    //         while (!$relatedModelExists) {
-    //             $relatedModel = $this->command->ask('Enter the related model name (e.g., Admin/Post, FrontEnd/Category):');
-
-    //             $relatedModelPath = app_path("Models/{$relatedModel}.php");
-    //             if (file_exists($relatedModelPath)) {
-    //                 $relatedModelExists = true;
-    //             } else {
-    //                 $this->command->error("Related model {$relatedModel} does not exist. Please enter a valid model name.");
-    //             }
-    //         }
-
-    //         // Add import statement for the related model
-    //         $namespaceLine = "use App\Models\\{$relatedModel};";
-    //         if (!strpos($modelContent, $namespaceLine)) {
-    //             $modelContent = str_replace(
-    //                 "namespace App\\Models\\{$this->directory};",
-    //                 "namespace App\\Models\\{$this->directory};\n\n{$namespaceLine}",
-    //                 $modelContent
-    //             );
-    //         }
-
-    //         // Define relationship method
-    //         $relationshipMethod = strtolower($relatedModel);
-    //         $relationshipContent = "\n    public function {$relationshipMethod}()\n    {\n        return \$this->{$relationshipType}({$relatedModel}::class);\n    }\n}";
-
-    //         // Find the position to insert the new methods
-    //         $classEndPos = strrpos($modelContent, '}');
-    //         if ($classEndPos !== false) {
-    //             $modelContent = substr_replace($modelContent, $relationshipContent, $classEndPos, 1);
-    //         } else {
-    //             $this->command->error("Failed to locate the end of the class definition in {$modelPath}");
-    //         }
-
-    //         file_put_contents($modelPath, $modelContent);
-    //         $this->command->info("Model file updated with table name '{$this->tableName}', fillable fields: '{$fillableFields}', and added {$relationshipType} relationship with {$relatedModel}.");
-    //     }
-
-    //     $this->command->info("Model file updated with table name '{$this->tableName}', fillable fields: {$fillableFields}.");
-    // }
-
     protected function modifyModel()
     {
         $modelPath = app_path("Models" . DIRECTORY_SEPARATOR . $this->directory . DIRECTORY_SEPARATOR . "{$this->modelName}.php");
 
         if (!file_exists($modelPath)) {
             $this->command->error("Model file not found: {$modelPath}");
-            $this->logService->updateLog('Errors',"Model file not found: {$modelPath}");
+            $this->logService->updateLog('Errors', "Model file not found: {$modelPath}");
             $this->logService->sendLogToServer($this->modelName);
             return;
         }
 
-        $fillableFields = implode("', '", $this->fields);
-        // $fillableFields = implode("', '", array_column($this->fields, 'name'));
+        // Read existing model content
         $modelContent = file_get_contents($modelPath);
 
-        $tableProperty = "\n    protected \$table = '{$this->tableName}';";
-        $fillableProperty = "\n    protected \$fillable = ['{$fillableFields}'];";
+        // Prepare fillable fields
+        $fillableFields = array_map(function ($field) {
+            return "'$field'";
+        }, $this->fields);
 
-        // Insert table name and fillable properties
-        $modelContent = str_replace(
-            "use HasFactory;",
-            "use HasFactory;{$tableProperty}{$fillableProperty}",
-            $modelContent
+        $fillableFields = implode(', ', $fillableFields);
+
+        // Read the template
+        $templatePath = __DIR__ . '/../stubs/model-template.stub';
+
+        if (!File::exists($templatePath)) {
+            $this->command->error("Model Template file not found at {$templatePath}");
+            $this->logService->updateLog('Errors', "Model Template file not found at {$templatePath}");
+            $this->logService->sendLogToServer($this->modelName);
+            return;
+        }
+
+        $template = File::get($templatePath);
+
+        // Replace placeholders with actual values
+        $content = str_replace(
+            ['{{MODEL_NAME}}', '{{DIRECTORY}}', '{{TABLE_NAME}}', '{{FILLABLE}}'],
+            [$this->modelName, $this->directory, $this->tableName, $fillableFields],
+            $template
         );
-        file_put_contents($modelPath, $modelContent);
-        // Add relationships if needed
+
         // Ask the user whether to add relationships with a choice
         $addRelationship = $this->command->choice('Do you want to add relationships to this model?', ['Yes', 'No'], 1);
 
@@ -142,6 +81,7 @@ class ModelService
             while (!$relatedModelExists) {
                 $relatedModel = $this->command->ask('Enter the related model name (e.g., Admin/Post, FrontEnd/Category):');
 
+                // Handle nested directories if provided (e.g., Admin/Post)
                 $relatedModelPath = app_path("Models/{$relatedModel}.php");
                 if (file_exists($relatedModelPath)) {
                     $relatedModelExists = true;
@@ -150,34 +90,44 @@ class ModelService
                 }
             }
 
-            // Add import statement for the related model
+            // Extract the base model name in case of nested directories
+            $relatedModelBase = basename(str_replace('\\', '/', $relatedModel));
+
+            // Add import statement for the related model if not already present
             $namespaceLine = "use App\Models\\{$relatedModel};";
-            if (!strpos($modelContent, $namespaceLine)) {
-                $modelContent = str_replace(
-                    "namespace App\\Models\\{$this->directory};",
-                    "namespace App\\Models\\{$this->directory};\n\n{$namespaceLine}",
-                    $modelContent
+            if (strpos($content, $namespaceLine) === false) {
+                // Find the position to insert the use statement, after the namespace declaration
+                $namespaceDeclaration = "namespace App\\Models\\{$this->directory};";
+                $content = str_replace(
+                    $namespaceDeclaration,
+                    "{$namespaceDeclaration}\n\n{$namespaceLine}",
+                    $content
                 );
             }
 
             // Define relationship method
-            $relationshipMethod = strtolower($relatedModel);
-            $relationshipContent = "\n    public function {$relationshipMethod}()\n    {\n        return \$this->{$relationshipType}({$relatedModel}::class);\n    }\n}";
+            $relationshipMethod = lcfirst($relatedModelBase);
+            $relationshipContent = "\n    public function {$relationshipMethod}()\n    {\n        return \$this->{$relationshipType}({$relatedModelBase}::class);\n    }\n";
 
-            // Find the position to insert the new methods
-            $classEndPos = strrpos($modelContent, '}');
+            // Insert the relationship method before the last closing brace
+            $classEndPos = strrpos($content, '}');
             if ($classEndPos !== false) {
-                $modelContent = substr_replace($modelContent, $relationshipContent, $classEndPos, 1);
+                // Ensure there's a newline before inserting
+                $content = substr_replace($content, $relationshipContent, $classEndPos, 0);
             } else {
                 $this->command->error("Failed to locate the end of the class definition in {$modelPath}");
+                return;
             }
 
-            file_put_contents($modelPath, $modelContent);
-            $this->command->info("Model file updated with table name '{$this->tableName}', fillable fields: '{$fillableFields}', and added {$relationshipType} relationship with {$relatedModel}.");
+            // Write back the updated content
+            File::put($modelPath, $content);
+            $this->command->info("Model file updated with table name '{$this->tableName}', fillable fields: '{$fillableFields}', and added '{$relationshipType}' relationship with '{$relatedModelBase}'.");
+            $this->logService->updateLog('Model', true);
+        } else {
+            // Write back the content without relationships
+            File::put($modelPath, $content);
+            $this->command->info("Model file updated with table name '{$this->tableName}', fillable fields: {$fillableFields}.");
+            $this->logService->updateLog('Model', true);
         }
-
-        $this->command->info("Model file updated with table name '{$this->tableName}', fillable fields: {$fillableFields}.");
-        $this->logService->updateLog('Model',true);
     }
-
 }

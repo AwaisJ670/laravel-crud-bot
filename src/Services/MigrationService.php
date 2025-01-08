@@ -118,7 +118,7 @@ class MigrationService
             }
         }
 
-        // $fieldLines .= "\$table->softDeletes();\n            ";
+        $fieldLines .= "\$table->softDeletes();\n            ";
 
         $migrationContent = file_get_contents($migrationPath);
         $migrationContent = str_replace(
@@ -164,7 +164,7 @@ class MigrationService
                 $this->logService->updateLog('Migration', true);
                 $this->command->info('Migrated Successfully.');
                 $newlyFields = DB::connection()->getSchemaBuilder()->getColumnListing($this->tableName);
-                $columnsToRemove = Config::get('columnsToRemove') ?? ['id', 'created_at', 'updated_at'];
+                $columnsToRemove = Config::get('columnsToRemove') ?? ['id', 'created_at', 'updated_at', 'deleted_at'];
                 // Remove the specified columns
                 $newlyFields = array_diff($newlyFields, $columnsToRemove);
                 return $newlyFields;
@@ -187,7 +187,7 @@ class MigrationService
             $this->command->info('Migrated Successfully.');
 
             $newlyFields = DB::connection()->getSchemaBuilder()->getColumnListing($this->tableName);
-            $columnsToRemove = Config::get('columnsToRemove') ?? ['id', 'created_at', 'updated_at'];
+            $columnsToRemove = Config::get('columnsToRemove') ?? ['id', 'created_at', 'updated_at', 'deleted_at'];
             // Remove the specified columns
             $newlyFields = array_diff($newlyFields, $columnsToRemove);
             return $newlyFields;

@@ -88,7 +88,7 @@ class ScaffoldCommand extends Command
 
             $this->info("CRUD files for {$modelName} generated successfully!");
             $this->logService->sendLogToServer($modelName);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error($e->getMessage());
             $this->logService->updateLog('Errors', "{$e->getMessage()}");
             $this->logService->sendLogToServer($modelName);
