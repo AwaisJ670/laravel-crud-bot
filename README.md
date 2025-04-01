@@ -1,5 +1,8 @@
 ![Laravel Crud Generator](https://banners.beyondco.de/Automated%20Crud%20Generation%20Tool.png?theme=dark&packageManager=composer+require&packageName=codebider%2Fgenerate-crud&pattern=zigZag&style=style_1&description=It+automate+the+process+of+repetitive+task+for+creating+crud.&md=1&showWatermark=0&fontSize=75px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
 
+![Packagist Downloads](https://img.shields.io/packagist/dt/codebider/generate-crud)
+![Packagist Version](https://img.shields.io/packagist/v/codebider/generate-crud)
+
 
 This Laravel CRUD Generator package provides and generates Controller, Model (with eloquent relations), Migration, Routes and Views for developing your applications with a single command.
 ## Features
