@@ -55,7 +55,15 @@ class ControllerService
             // $requestService = new RequestService($this->command,$this->directory,$this->modelName,$this->fields,$this->logService);
             // $requestService->generateRequestClass();
             // Generate resource controller manually using the template
-            $templatePath = __DIR__ . '/../stubs/resource-controller-template.stub';
+            $stubFileName = 'resource-controller-template.stub';
+
+            // Check if a custom stub exists in the Laravel base stubs path
+            $customStubPath = base_path("stubs/{$stubFileName}");
+
+            // Fallback to default package stub if custom one doesn't exist
+            $templatePath = file_exists($customStubPath)
+                ? $customStubPath
+                : __DIR__ . "/../stubs/{$stubFileName}";
 
             if (!File::exists($templatePath)) {
                 $this->command->error("Template file not found at {$templatePath}");

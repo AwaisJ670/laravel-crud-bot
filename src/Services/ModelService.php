@@ -51,7 +51,16 @@ class ModelService
         $fillableFields = implode(', ', $fillableFields);
 
         // Read the template
-        $templatePath = __DIR__ . '/../stubs/model-template.stub';
+        $stubFileName = 'model-template.stub';
+
+        // Check if a custom stub exists in the Laravel base stubs path
+        $customStubPath = base_path("stubs/{$stubFileName}");
+
+        // Fallback to default package stub if custom one doesn't exist
+        $templatePath = file_exists($customStubPath)
+            ? $customStubPath
+            : __DIR__ . "/../stubs/{$stubFileName}";
+
 
         if (!File::exists($templatePath)) {
             $this->command->error("Model Template file not found at {$templatePath}");

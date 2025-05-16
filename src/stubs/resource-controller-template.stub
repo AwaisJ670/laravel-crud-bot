@@ -9,48 +9,59 @@ use Illuminate\Http\Request;
 
 class {{MODEL_NAME}}Controller extends Controller
 {
-     /**
+    /**
      * Display a listing of the resource.
      *
+     * Loads the index view for the {{TABLE_NAME}} resource.
+     * 
      * @return \Illuminate\Http\Response
      */
     public function index(){
         return view('{{DIRECTORY_INDEX_FILE}}.{{TABLE_NAME}}.index');
     }
 
-     /**
+    /**
      * Show the form for creating a new resource.
      *
+     * Could be extended to return a view or form data for creating a new {{MODEL_NAME}}.
+     * 
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        //
+        // Optional: Return a view for creating a new resource
     }
 
-     /**
+    /**
      * Store a newly created resource in storage.
      *
+     * Validates and creates a new instance of {{MODEL_NAME}} using request data.
+     * 
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request){
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::create($request->all());
-            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Saved Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
+            return response()->json([
+                "message" => '{{FOLDER_TABLE_NAME}} Saved Successfully',
+                '{{TABLE_NAME}}' => ${{TABLE_NAME}}
+            ]);
         }
         catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
-     /**
+
+    /**
      * Display the specified resource.
      *
+     * Returns data of a specific {{MODEL_NAME}} by ID.
+     * 
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-
     public function show($id){
-         try{
+        try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
             return response()->json(${{TABLE_NAME}});
         }
@@ -59,14 +70,16 @@ class {{MODEL_NAME}}Controller extends Controller
         }
     }
 
-     /**
+    /**
      * Show the form for editing the specified resource.
      *
+     * Returns data of a specific {{MODEL_NAME}} for editing.
+     * 
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function edit($id){
-         try{
+        try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
             return response()->json(${{TABLE_NAME}});
         }
@@ -75,30 +88,37 @@ class {{MODEL_NAME}}Controller extends Controller
         }
     }
 
-     /**
+    /**
      * Update the specified resource in storage.
      *
+     * Updates a specific {{MODEL_NAME}} record with the provided request data.
+     * 
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id){
         try{
             ${{TABLE_NAME}} = {{MODEL_NAME}}::findOrFail($id);
             ${{TABLE_NAME}}->update($request->all());
 
-            return response()->json(["message" => '{{FOLDER_TABLE_NAME}} Updated Successfully','{{TABLE_NAME}}' => ${{TABLE_NAME}}]);
+            return response()->json([
+                "message" => '{{FOLDER_TABLE_NAME}} Updated Successfully',
+                '{{TABLE_NAME}}' => ${{TABLE_NAME}}
+            ]);
         }
         catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
 
-     /**
+    /**
      * Remove the specified resource from storage.
      *
+     * Deletes the given {{MODEL_NAME}} by ID.
+     * 
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id){
         try{
@@ -110,5 +130,4 @@ class {{MODEL_NAME}}Controller extends Controller
             return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
-
 }

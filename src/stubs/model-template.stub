@@ -8,11 +8,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class {{MODEL_NAME}} extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = "{{TABLE_NAME}}";
 
+    /**
+     * The attributes that are mass assignable.
+     * These fields can be filled via create/update methods using arrays.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         {{FILLABLE}}
     ];
+
 }
