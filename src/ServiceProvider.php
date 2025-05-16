@@ -22,6 +22,9 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->publishes([
+            __DIR__.'/stubs' => base_path('stubs'),
+        ], 'crud-generate-stubs');
+        $this->publishes([
             __DIR__ . '/../config/crud_generator.php' => config_path('crud_generator.php'),
         ], 'crud-generator-config');
     }
