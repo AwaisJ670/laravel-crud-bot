@@ -73,7 +73,7 @@ class ScaffoldCommand extends Command
 
             // Generate Controller
             $controllerService = new ControllerService($this, $this->directory, $modelName, $tableName, $fields, $this->logService);
-            $bladeFileService = new BladeFileService($this, $this->directory, $tableName, $this->logService);
+            $bladeFileService = new BladeFileService($this, $this->directory, $tableName,$modelName, $this->logService);
 
             if ($controllerService->askGenerateController()) {
                 $controllerService->generateController();
