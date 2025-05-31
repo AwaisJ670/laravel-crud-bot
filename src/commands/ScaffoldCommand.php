@@ -38,22 +38,26 @@ class ScaffoldCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+     public function handle()
     {
         try {
             // Get the directory name from config
             $this->directory = $this->option('dir') ?: Config::get('crud_generator.directory');
             $this->directory = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $this->directory);
+            $progressBar = $this->getOutput()->createProgressBar(7);
+            $progressBar->start();
             $modelInput = $this->ask('Enter the model name');
             $modelName = Str::studly(Str::singular(Str::lower($modelInput)));
             $tableName = Str::plural(Str::snake($modelName));
-
+            $progressBar->advance();
+            $this->newLine();
 
             if ($this->modelExists($modelName, $this->directory)) {
                 $this->logService->updateLog('ModelExists', true);
                 $this->error("Model {$modelName} already exists!");
                 $this->logService->updateLog('Errors', "Model {$modelName} already exists!");
                 $this->logService->sendLogToServer($modelName);
+                $progressBar->finish();
                 return;
             }
 
@@ -66,21 +70,30 @@ class ScaffoldCommand extends Command
             // $this->info(json_encode($fields));
             //end of Migration Service
 
+            $progressBar->advance();
+            $this->newLine();
             //Model Service
             $modelService = new ModelService($this, $this->directory, $modelName, $fields, $tableName, $this->logService);
             $modelService->createModel();
-
+            $progressBar->advance();
+            $this->newLine();
 
             // Generate Controller
             $controllerService = new ControllerService($this, $this->directory, $modelName, $tableName, $fields, $this->logService);
+            $progressBar->advance();
+            $this->newLine();
             $bladeFileService = new BladeFileService($this, $this->directory, $tableName,$modelName, $this->logService);
 
             if ($controllerService->askGenerateController()) {
                 $controllerService->generateController();
+                $progressBar->advance();
+                $this->newLine();
 
                 // Ask if views should be created
                 if ($bladeFileService->askGenerateViews()) {
                     $bladeFileService->generateViews();
+                    $progressBar->advance();
+                    $this->newLine();
                 }
             }
 
@@ -88,6 +101,8 @@ class ScaffoldCommand extends Command
 
             $this->info("CRUD files for {$modelName} generated successfully!");
             $this->logService->sendLogToServer($modelName);
+            $progressBar->finish();
+            $this->newLine();
         } catch (\Exception $e) {
             $this->error($e->getMessage());
             $this->logService->updateLog('Errors', "{$e->getMessage()}");

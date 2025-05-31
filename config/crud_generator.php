@@ -10,6 +10,7 @@ return [
     /**
      * The operating system being used.
      * This value can help for previewing the migration file if needed.
+     * It can be 'Windows', 'Linux', or 'MacOS'.
      */
     'OS' => 'Windows',
 

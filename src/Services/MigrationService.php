@@ -129,7 +129,8 @@ class MigrationService
         file_put_contents($migrationPath, $migrationContent);
 
         $this->command->info("fields are : " . implode(', ', array_column($fields, 'name')));
-
+        $this->migrationTablePreview($fields);
+        $this->command->newLine();
         $newlyfields = $this->reviewMigration();
         return $newlyfields;
     }
@@ -151,9 +152,10 @@ class MigrationService
             $OS = Config::get('crud_generator.OS') ?? 'Windows';
             if ($OS === 'Windows') {
                 system("notepad {$migrationPath}");
+            } else if($OS === 'MacOS') {
+                system("open -t {$migrationPath}"); // You can replace 'nano' with your preferred editor
             } else {
                 system("nano {$migrationPath}"); // You can replace 'nano' with your preferred editor
-
             }
             $migrationFeedback = $this->command->choice('Is the migration file correct?', ['Yes', 'No'], 0);
             if ($migrationFeedback === 'Yes') {
@@ -192,5 +194,19 @@ class MigrationService
             $newlyFields = array_diff($newlyFields, $columnsToRemove);
             return $newlyFields;
         }
+    }
+
+    protected function migrationTablePreview($fields){
+        $this->command->table(
+            ['Column Name', 'Type', 'Nullable', 'Default'],
+            array_map(function ($field) {
+                return [
+                    'Column Name' => $field['name'],
+                    'Type' => $field['type'],
+                    'Nullable' => $field['nullable'] === 'Yes' ? 'Yes' : 'No',
+                    'Default' => isset($field['options']['default']) ? $field['options']['default'] : '',
+                ];
+            }, $fields)
+        );
     }
 }
